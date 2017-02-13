@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.java.mappers.StudentMapper">  <!-- namespace接口的完整路径 -->
+
+	
+	<!--   一对一查询级联的返回结果类型            级联查询  自定义返回类型   后面使用可以直接使用id -->
+	<resultMap type="Student" id="StudentResult">
+		<id property="id" column="id"/> <!--用来定义主键    property是实体中的属性，column是数据库中的字段  -->
+		<result property="name" column="name"/>
+		<result property="age" column="age"/>
+		<!-- id是Student表的外键 -->
+		<association property="address" column="addressId" select="com.java.mappers.AddressMapper.findById"></association>
+		<association property="grade" column="gradeId" select="com.java.mappers.GradeMapper.findById"></association>
+	</resultMap>
+
+
+	<!-- 添加用的是insert标签       id对应com.java.mappers.StudentMapper接口里的add方法名   
+	parameterType用的是mybatis-config.xml类里面配置的别名 -->
+	<insert id="add" parameterType="Student"  >
+		insert into t_student values(null,#{name},#{age}) <!-- sql语句 -->
+	</insert>
+	
+	<!-- 更新 -->
+	<update id="update" parameterType="Student" >
+		update t_student set name=#{name},age=#{age} where id=#{id}
+	</update>
+	
+	<!-- 删除 -->
+	<delete id="delete" parameterType="Integer">
+		delete from t_student where id=#{id}
+	</delete>
+	
+	<!-- 查找 -->
+	<select id="findById" parameterType="Integer" resultType="Student">
+		select * from t_student where id=#{id}
+	</select>
+
+	  
+	<!--  查找全部    查找单张表-->
+	<select id="find" resultMap="StudentResult">
+		select * from t_student;
+	</select>
+	
+	<!-- 查找级联        一对一 -->
+	<select id="findStudentWithAddress" resultMap="StudentResult" parameterType="Integer">
+		select * from t_student t1, t_address t2 where t1.addressId=t2.id and t1.id=#{id}
+	</select>
+	
+	<select id="findByGradeId" resultMap="StudentResult" parameterType="Integer">
+		select * from t_student where gradeId=#{gradeId}
+	</select>
+</mapper>
+
+<!-- 对应类的映射文件 --> 
